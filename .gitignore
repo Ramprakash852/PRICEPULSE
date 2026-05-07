@@ -37,6 +37,9 @@ runs/
 dist/
 build/
 
+# Logs & Automation
+logs/
+
 # Streamlit
 .streamlit/
 .streamlit_session/

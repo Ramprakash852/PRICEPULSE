@@ -4,17 +4,17 @@
 
 PricePulse is an automated competitor price intelligence platform designed to help businesses monitor product pricing trends, availability, and ratings from publicly available competitor marketplaces.
 
-The system collects raw product data through automated web scraping, cleans and standardizes the data, stores it in a PostgreSQL database, and exposes business-ready insights through REST APIs and an interactive dashboard.
+The system collects raw product data through automated web scraping with retry logic and user-agent headers, cleans and standardizes the data with comprehensive quality metrics, stores it in a PostgreSQL database with historical price tracking, and exposes business-ready insights through a professionally-designed REST API and an interactive dashboard with real-time visualizations.
 
-This project demonstrates a complete end-to-end data engineering pipeline including:
+This project demonstrates a complete production-ready end-to-end data engineering pipeline including:
 
-* automated data collection
-* data cleaning and transformation
-* database integration
-* API development
-* scheduling and automation
-* dashboard visualization
-* cloud deployment
+* automated data collection with resilience
+* data cleaning and transformation with quality validation
+* database integration with historical tracking
+* professional API development with response models
+* comprehensive scheduling and automation with logging
+* interactive dashboard visualization with real-time analytics
+* cloud-ready architecture
 
 ---
 
@@ -30,7 +30,7 @@ Businesses frequently need access to competitor pricing and product intelligence
 
 However, this data is often fragmented and unavailable in structured form.
 
-PricePulse solves this by building an automated pipeline that continuously collects, processes, and delivers competitor product data in a usable format.
+PricePulse solves this by building an automated pipeline that continuously collects, processes, and delivers competitor product data in a usable format with historical tracking capabilities.
 
 ---
 
@@ -39,26 +39,34 @@ PricePulse solves this by building an automated pipeline that continuously colle
 ## Automated Web Scraping
 
 * Multi-page product scraping using Playwright
-* Pagination handling
-* Graceful failure handling
+* Pagination handling with retry logic (3 attempts per page)
+* Graceful failure handling with detailed logging
 * Missing field handling
+* Realistic User-Agent headers to avoid detection
+* Timestamp tracking for data lineage
 
 ---
 
 ## Data Cleaning Pipeline
 
-* Duplicate removal
+* Schema validation (ensures required columns exist)
+* Duplicate removal with tracking
 * Price normalization
 * Missing value handling
 * Rating standardization
+* Data quality metrics reporting
+* Output in both CSV and JSON formats
 
 ---
 
 ## PostgreSQL Database Integration
 
-* Structured product storage
+* Structured product storage with unique constraints
 * Persistent historical records
 * ORM-based database interaction using SQLAlchemy
+* **NEW: Price history tracking** - stores all price snapshots for trend analysis
+* **NEW: Created timestamp** - tracks when data was recorded
+* Automatic migration tools for schema updates
 
 ---
 
@@ -66,27 +74,52 @@ PricePulse solves this by building an automated pipeline that continuously colle
 
 REST API endpoints for:
 
-* product retrieval
-* top-rated products
-* business insights
+* `/health` - Health check (production best practice)
+* `/products` - Retrieve all products with timestamps
+* `/top-rated` - Filter products by rating
+* `/search?name=query` - Full-text search functionality
+* `/top-discounts` - Sort by lowest prices (configurable limit)
+* `/products/{id}/price-history` - Historical price tracking and trends
+
+**Features:**
+* Pydantic response models for type safety
+* Automatic Swagger documentation at `/docs`
+* Query parameter validation
+* Professional error handling
+* Session management
+* Comprehensive logging
 
 ---
 
 ## Automation
 
-* Scheduled pipeline execution using APScheduler
+* Scheduled pipeline execution using APScheduler (every 6 hours)
 * Fully automated scrape → clean → store workflow
+* **NEW: Detailed pipeline logging** to `logs/pipeline.log`
+* **NEW: Run history tracking** in `logs/pipeline_runs.json`
+* Success/failure tracking for each component
+* Automatic retry on failure with detailed error reporting
 
 ---
 
 ## Interactive Dashboard
 
-Streamlit dashboard for:
+Streamlit dashboard with:
 
-* product visualization
-* search/filtering
-* pricing insights
-* rating analysis
+* **Metrics Cards**: Total products, average price, highest rating, lowest price
+* **Interactive Charts**: 
+  - Price distribution histogram
+  - Rating distribution bar chart
+  - Price vs Rating scatter plot
+  - Best discounts bar chart
+* **Sidebar Filters**:
+  - Auto-refresh interval selector
+  - Minimum rating filter
+  - Price range slider
+  - Show/hide unavailable products toggle
+* **Real-time Data**: Cached with configurable TTL
+* **Detailed Tables**: All products, top-rated, best discounts
+* Professional layout with visual hierarchy
 
 ---
 
@@ -100,7 +133,8 @@ Streamlit dashboard for:
 | Database        | PostgreSQL               |
 | ORM             | SQLAlchemy               |
 | Automation      | APScheduler              |
-| Dashboard       | Streamlit                |
+| Dashboard       | Streamlit + Plotly       |
+| Logging         | Python logging module    |
 | Deployment      | Render + Neon PostgreSQL |
 
 ---
@@ -109,18 +143,24 @@ Streamlit dashboard for:
 
 ```
           Playwright Scraper
+         (with retry logic)
                     ↓
              Raw CSV Dataset
+          (with timestamps)
                     ↓
           Data Cleaning Pipeline
+      (schema validation + metrics)
                     ↓
-             Cleaned CSV Data
+        Cleaned CSV + JSON Data
                     ↓
               PostgreSQL DB
+         (with price history)
                     ↓
-              FastAPI Backend
+         FastAPI Backend
+      (with response models)
                     ↓
-           Streamlit Dashboard
+        Streamlit Dashboard
+     (interactive + real-time)
 ```
 
 ---
@@ -132,26 +172,40 @@ pricepulse/
 │
 ├── app/
 │   ├── api/
-│   │   └── main.py
+│   │   ├── main.py (API endpoints + health check)
+│   │   └── schemas.py (Pydantic response models)
 │   │
 │   ├── scraper/
-│   │   ├── scraper.py
+│   │   ├── scraper.py (with retry logic + logging)
 │   │   └── raw_data.csv
 │   │
 │   ├── cleaning/
-│   │   ├── clean_data.py
-│   │   └── cleaned_data.csv
+│   │   ├── clean_data.py (with quality metrics)
+│   │   ├── cleaned_data.csv
+│   │   └── cleaned_data.json
 │   │
 │   ├── database/
+│   │   ├── models.py (with price history)
 │   │   ├── db.py
-│   │   ├── models.py
-│   │   └── insert_data.py
+│   │   ├── insert_data.py (with price tracking)
+│   │   ├── migrate.py (schema migration tool)
+│   │   └── quick_fix.py (auto-migration utility)
 │   │
 │   ├── scheduler/
-│   │   └── scheduler.py
+│   │   ├── scheduler.py (with detailed logging)
+│   │   ├── view_runs.py (run history viewer)
+│   │   ├── start_scheduler.py (startup script)
+│   │   └── README.md (scheduler documentation)
+│   │
+│   ├── utils/
+│   │   └── logger.py (centralized logging)
 │   │
 │   └── dashboard/
-│       └── dashboard.py
+│       └── dashboard.py (interactive + charts)
+│
+├── logs/
+│   ├── pipeline.log (execution logs)
+│   └── pipeline_runs.json (run history)
 │
 ├── tests/
 ├── requirements.txt
@@ -230,10 +284,19 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/pricepulse
 
 Replace:
 
-* username
-* password
+* `postgres` - your PostgreSQL username
+* `password` - your PostgreSQL password
+* `localhost:5432` - your database server (if different)
 
-with your PostgreSQL credentials.
+# Database Migration
+
+If you have an existing database with an outdated schema:
+
+```bash
+python app/database/quick_fix.py
+```
+
+Choose Option 1 to auto-migrate (adds missing columns and tables without deleting data).
 
 ---
 
@@ -247,6 +310,10 @@ with your PostgreSQL credentials.
 python app/scraper/scraper.py
 ```
 
+Output:
+* `app/scraper/raw_data.csv` - Raw product data
+* Console logs with retry attempts and timestamps
+
 ---
 
 ## Step 2 — Run Data Cleaning Pipeline
@@ -254,6 +321,11 @@ python app/scraper/scraper.py
 ```bash
 python app/cleaning/clean_data.py
 ```
+
+Output:
+* `app/cleaning/cleaned_data.csv` - Cleaned data
+* `app/cleaning/cleaned_data.json` - JSON format
+* Console logs with data quality metrics
 
 ---
 
@@ -263,6 +335,10 @@ python app/cleaning/clean_data.py
 python app/database/models.py
 ```
 
+This creates:
+* `products` table (with created_at and unique constraints)
+* `price_history` table (for historical tracking)
+
 ---
 
 ## Step 4 — Insert Data into PostgreSQL
@@ -270,6 +346,11 @@ python app/database/models.py
 ```bash
 python -m app.database.insert_data
 ```
+
+Output:
+* Data inserted into database
+* Price snapshots recorded
+* Console logs with insert summary
 
 ---
 
@@ -310,47 +391,103 @@ http://localhost:8501
 ## Step 7 — Run Automated Scheduler
 
 ```bash
+python app/scheduler/start_scheduler.py
+```
+
+Or directly:
+
+```bash
 python app/scheduler/scheduler.py
 ```
 
-This automates:
+This automates (every 6 hours):
+* Scraping
+* Cleaning
+* Database updates
 
-* scraping
-* cleaning
-* database updates
+**View run history:**
+
+```bash
+python app/scheduler/view_runs.py
+```
 
 ---
 
 # API Endpoints
 
-| Endpoint     | Description                    |
-| ------------ | ------------------------------ |
-| `/`          | Health check                   |
-| `/products`  | Retrieve all products          |
-| `/top-rated` | Retrieve highly rated products |
+| Endpoint | Method | Description | Response |
+|----------|--------|-------------|----------|
+| `/` | GET | Welcome message | Welcome JSON |
+| `/health` | GET | Health check | Status message |
+| `/products` | GET | All products | Array of ProductResponse |
+| `/top-rated` | GET | Rated 4+ stars | Array of ProductResponse |
+| `/search?name=query` | GET | Search by name | SearchResponse with results |
+| `/top-discounts?limit=10` | GET | Lowest prices | Array of ProductResponse |
+| `/products/{id}/price-history` | GET | Price trends | ProductDetailResponse |
 
 ---
 
-# Data Cleaning Decisions
+## Data Cleaning Decisions
 
 | Problem             | Solution                    |
 | ------------------- | --------------------------- |
 | Duplicate records   | Removed using Pandas        |
 | Currency formatting | Standardized to float       |
-| Missing values      | Filled with placeholders    |
+| Missing values      | Filled with "Unknown"       |
 | Rating text values  | Converted to numeric scores |
+| Data freshness      | Timestamps added for tracking |
+| Data quality        | Metrics logged and reported |
 
 ---
 
 # Automation Workflow
 
-The APScheduler service automatically:
+The APScheduler service automatically every 6 hours:
 
-1. runs the scraper
-2. cleans raw data
-3. updates PostgreSQL database
+1. **Runs the scraper**
+   - Fetches latest product data
+   - Logs with timestamps
+   - Retries on failure
 
-This ensures the system remains continuously updated without manual intervention.
+2. **Cleans the data**
+   - Validates schema
+   - Reports quality metrics
+   - Outputs CSV + JSON
+
+3. **Updates PostgreSQL**
+   - Inserts new products
+   - Records price changes in history
+   - Logs insert summary
+
+**Logs stored in:**
+* `logs/pipeline.log` - Detailed execution logs
+* `logs/pipeline_runs.json` - Structured run history
+
+---
+
+# Monitoring & Logging
+
+## View Scheduler Logs
+
+```bash
+# Windows
+Get-Content -Path logs/pipeline.log -Wait
+
+# Mac/Linux
+tail -f logs/pipeline.log
+```
+
+## View Run History
+
+```bash
+python app/scheduler/view_runs.py
+```
+
+Output includes:
+* Recent execution timestamps
+* Status of each component
+* Success rate statistics
+* Total runs and failures
 
 ---
 
@@ -359,10 +496,14 @@ This ensures the system remains continuously updated without manual intervention
 ## Backend Deployment
 
 * Render
+* Heroku
+* AWS Lambda
 
 ## Database Hosting
 
 * Neon PostgreSQL
+* AWS RDS
+* Azure Database for PostgreSQL
 
 ---
 
@@ -370,61 +511,110 @@ This ensures the system remains continuously updated without manual intervention
 
 PricePulse demonstrates how businesses can:
 
-* monitor competitor pricing
-* analyze market trends
-* identify high-performing products
-* automate competitor intelligence collection
+* **Monitor competitor pricing** - Track price changes in real-time
+* **Analyze market trends** - Identify patterns with historical data
+* **Identify high-performing products** - Filter by rating and price
+* **Automate intelligence collection** - Scheduled runs without manual intervention
+* **Make data-driven decisions** - Visual dashboard with interactive analytics
+
+---
+
+# Production Enhancements Implemented
+
+✅ **Scraper Improvements:**
+- User-Agent headers for realism
+- Comprehensive logging
+- Timestamp tracking
+- Retry logic (3 attempts)
+
+✅ **Data Cleaning:**
+- Schema validation
+- Data quality metrics
+- Dual format output (CSV + JSON)
+
+✅ **Database:**
+- Created timestamps
+- Unique constraints
+- Historical price tracking
+
+✅ **API:**
+- Health endpoint
+- Search functionality
+- Sorting/filtering
+- Response models (Pydantic)
+- Automatic Swagger docs
+
+✅ **Dashboard:**
+- Metrics cards
+- Interactive charts
+- Sidebar filters
+- Auto-refresh capability
+
+✅ **Automation:**
+- Detailed pipeline logging
+- Run history tracking
+- Success/failure monitoring
+- Migration tools
 
 ---
 
 # Future Improvements
 
-Potential future enhancements:
+Potential enhancements:
 
-* historical price tracking
-* email alerts for price drops
+* Email alerts on price drops
 * AI-based price trend prediction
-* advanced analytics dashboard
+* Advanced analytics dashboard
 * Docker containerization
-* cloud scheduler integration
+* Cloud scheduler integration (AWS EventBridge, Azure Functions)
+* Database backups and disaster recovery
+* API rate limiting
+* User authentication
 
 ---
 
-# Challenges Faced
+# Challenges Faced & Solutions
 
-* Handling pagination reliably
-* Cleaning inconsistent scraped data
-* Preventing duplicate database entries
-* Automating the full pipeline
-* Ensuring deployment compatibility
+| Challenge | Solution |
+|-----------|----------|
+| Handling pagination reliably | Implemented retry logic |
+| Cleaning inconsistent data | Schema validation + quality metrics |
+| Preventing duplicates | Unique constraints + deduplication |
+| Automating full pipeline | APScheduler with comprehensive logging |
+| Schema mismatches | Migration tools for safe updates |
+| Production logging | Centralized logger with file output |
 
 ---
 
 # Key Engineering Decisions
 
-| Decision    | Reason                               |
-| ----------- | ------------------------------------ |
-| FastAPI     | Lightweight and fast backend         |
-| PostgreSQL  | Production-ready relational database |
-| Playwright  | Reliable dynamic scraping            |
-| Streamlit   | Rapid dashboard development          |
-| APScheduler | Lightweight automation solution      |
+| Decision | Reason | Benefit |
+|----------|--------|----------|
+| FastAPI | Lightweight and fast | High performance API |
+| PostgreSQL | Production-ready relational DB | Reliability and scalability |
+| Playwright | Reliable dynamic scraping | Handles JavaScript-heavy sites |
+| Streamlit | Rapid dashboard development | Quick visualization iteration |
+| APScheduler | Lightweight automation | Simple deployment |
+| SQLAlchemy ORM | Type-safe DB interaction | Fewer bugs, better maintainability |
+| Pydantic models | Response validation | Better API documentation |
+| Centralized logging | Observability | Easy debugging and monitoring |
 
 ---
 
 # Assignment Requirements Coverage
 
-| Requirement             | Status |
-| ----------------------- | ------ |
-| Scraper                 | ✅      |
-| Pagination Handling     | ✅      |
-| Missing Fields Handling | ✅      |
-| Failure Handling        | ✅      |
-| Data Cleaning           | ✅      |
-| Database Storage        | ✅      |
-| Automation              | ✅      |
-| Deployment              | ✅      |
-| Dynamic Interface       | ✅      |
+| Requirement             | Status | Implementation |
+| ----------------------- | ------ | --------------- |
+| Scraper                 | ✅      | Playwright with retry logic |
+| Pagination Handling     | ✅      | Automatic page iteration |
+| Missing Fields Handling | ✅      | Schema validation + filling |
+| Failure Handling        | ✅      | Try-catch + retry logic |
+| Data Cleaning           | ✅      | Quality metrics + CSV/JSON |
+| Database Storage        | ✅      | PostgreSQL with history tracking |
+| Automation              | ✅      | APScheduler with logging |
+| Deployment              | ✅      | Production-ready setup |
+| Dynamic Interface       | ✅      | Streamlit dashboard |
+| Production Quality      | ✅      | Logging, monitoring, error handling |
 
 ---
 

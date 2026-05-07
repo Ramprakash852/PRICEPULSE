@@ -141,6 +141,8 @@ Streamlit dashboard with:
 
 # Project Architecture
 
+![Architecture Diagram](app/public/Architecture.png)
+
 ```
           Playwright Scraper
          (with retry logic)

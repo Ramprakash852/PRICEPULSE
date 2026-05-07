@@ -625,7 +625,3 @@ Potential enhancements:
 Bhukya Ramprakash
 
 ---
-
-# License
-
-This project was developed as part of a Data Engineering Internship assignment for educational and evaluation purposes.

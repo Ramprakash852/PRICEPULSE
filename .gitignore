@@ -40,3 +40,5 @@ build/
 # Streamlit
 .streamlit/
 .streamlit_session/
+
+.env

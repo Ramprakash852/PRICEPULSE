@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 import requests
 import pandas as pd
@@ -58,7 +60,7 @@ st.sidebar.info(
 def fetch_data():
     """Fetch product data from API"""
     try:
-        API_URL = "http://127.0.0.1:8000/products"
+        API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/products")
         response = requests.get(API_URL, timeout=5)
         response.raise_for_status()
         return pd.DataFrame(response.json())

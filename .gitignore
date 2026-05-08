@@ -45,3 +45,5 @@ logs/
 .streamlit_session/
 
 .env
+DEPLOYMENT.md
+new_readme.md

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query
 from sqlalchemy.orm import sessionmaker
-from app.database.models import Product, PriceHistory, engine
+from app.database.models import Product, PriceHistory, engine, Base
 from app.utils.logger import logger
 from app.api.schemas import (
     ProductResponse, 
@@ -18,6 +18,15 @@ app = FastAPI(
 )
 
 Session = sessionmaker(bind=engine)
+
+@app.on_event("startup")
+def startup_event():
+    """Initialize database tables on API startup"""
+    try:
+        Base.metadata.create_all(engine)
+        logger.info("✓ Database tables initialized on startup")
+    except Exception as e:
+        logger.error(f"Failed to initialize database tables: {e}")
 
 @app.get("/health", response_model=HealthResponse)
 def health():

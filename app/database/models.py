@@ -1,17 +1,43 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.engine.url import make_url
+from sqlalchemy.exc import ArgumentError
 from dotenv import load_dotenv
 from datetime import datetime
 from app.utils.logger import logger
 import os
+from pathlib import Path
 
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if not DATABASE_URL:
-    logger.error("DATABASE_URL environment variable is not set")
-    raise ValueError("DATABASE_URL is required")
+
+def build_default_database_url() -> str:
+    db_path = Path(__file__).resolve().parent / "pricepulse.sqlite3"
+    return f"sqlite:///{db_path.as_posix()}"
+
+def normalize_database_url(raw_url: str) -> str:
+    url = raw_url.strip().strip('"').strip("'")
+
+    # Handle accidental copy/paste formats like: DATABASE_URL=postgresql://...
+    if url.lower().startswith("database_url="):
+        url = url.split("=", 1)[1].strip()
+
+    # Normalize older provider format for SQLAlchemy compatibility.
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://"):]
+
+    return url
+
+
+DATABASE_URL = normalize_database_url(DATABASE_URL or "")
+
+try:
+    make_url(DATABASE_URL)
+except ArgumentError as exc:
+    logger.warning("Invalid DATABASE_URL format. Falling back to local SQLite database.")
+    DATABASE_URL = build_default_database_url()
 
 engine = create_engine(DATABASE_URL)
 
